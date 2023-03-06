@@ -2,14 +2,21 @@
 # Implementation of the binary model of customer behavior
 #==============================================================================
 
-import math
 from haversine import haversine
+
+def addSubparser(subparsers):
+  parser = subparsers.add_parser(
+    'binary',
+    description='Take all population that is closest to the object'
+  )
+  parser.set_defaults(objective=binary)
 
 #==============================================================================
 # Utility of the new locations given by X
+# it will take all population, that the object is closest to
 #==============================================================================
 
-def utilityBinary(I, J, X):
+def binary(I, J, X):
     
     AttrJ = []          # attractiveness of all preexisting facilities
     AttrX = []          # attractiveness of all new facilities
@@ -22,7 +29,7 @@ def utilityBinary(I, J, X):
         # Calculate AttrP
         AttrJ.clear()
         for j in range(0,len(J)):
-            AttrJ.append(haversine(I[i,0], I[i,1], I[J[j],0], I[J[j],1]))
+            AttrJ.append(haversine(I[i,0], I[i,1], I[J[j][0],0], I[J[j][0],1]))
             
         # Calculate AttrX
         AttrX.clear()
