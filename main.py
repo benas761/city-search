@@ -1,9 +1,13 @@
 #!python
 from typing import Any
-import numpy
+import time
+import numpy as np
 import argparse
-from objectiveFunctions.binarymodel import binary
-from searchAlgorithms.brute import addSubparser as addBruteSubparser
+from utils.distances import buildTriangleMatrix
+from objectiveFunctions.binary import binary
+from objectiveFunctions.proportional import proportional
+from searchAlgorithms.brute import brute, addSubparser as bruteSubparser
+from searchAlgorithms.random import random, addSubparser as randomSubparser
 
 # TODO: 
 # validate args
@@ -13,54 +17,62 @@ from searchAlgorithms.brute import addSubparser as addBruteSubparser
 # visuals
 
 def main(args: dict[str, Any]):
-  # all cities with X, Y and population
-  args['cities'] = numpy.loadtxt(args['cities'])
-  # already existing objects with the city's index and location's attractiveness
-  args['existing'] = [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1)]
-  # potential new objects, need to be found
   searchAlgorithm = args.pop('search')
-  validate(args)
-
+  # load all cities with X, Y and population
+  args['input'] = np.loadtxt(args['input'])
+  args['population'] = np.array([x[2] for x in args['input']])
+  args['distance'] = args.pop('input') if args['noDistances'] else buildTriangleMatrix(args.pop('input'))
+  # already existing objects with the city's index and location's attractiveness
+  args['existing'] = [0, 1, 2, 3, 4]
+  # potential new objects, need to be found'
+  startTime = time.time()
   X = searchAlgorithm(args)
+  print(f'Ran for {round(time.time() - startTime, 4)} seconds')
   print(X)
-
-def validate(args: dict[str, Any]):
-  # if the new objects cannot be placed in the same city, the existing cities must be plenty enough 
-  if len(args['cities']) < len(args['new']):
-    raise ValueError('There must be enough cities for new locations')
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Solve an optimization problem with the chosen algorithm.')
   objectiveMap = {
-    'binary': binary
+    'binary': binary,
+    'proportional': proportional
   }
+  # searchMap = {
+  #   'brute': brute,
+  #   'random': random
+  # }
   parser.add_argument(
     '-o', '--objective',
-		required=True,
+    required=True,
     choices=objectiveMap.keys()
   )
+  # parser.add_argument(
+  #   '-s', '--search',
+  #   required=True,
+  #   choices=searchMap.keys()
+  # )
   parser.add_argument(
-    '-c', '--cities',
-		required=True,
-		type=str,
+    '-i', '--input',
+    default='data/demands_LT_50.dat',
+    type=str,
     help='Filename of the city coordinate and population data'
   )
   parser.add_argument(
     '-n', '--new',
-		required=True,
-		type=int,
+    default=3,
+    type=int,
     help='New object count'
   )
-  # parser.add_argument(
-  #   '-v', '--visualise',
-  #   help='A flag for visualization of the algorithm'
-  # )
-  subparsers = parser.add_subparsers(
-    title='Algorithms',
-    description='Valid search algorithms',
-    help='Choose the algorithm to execute'
+  parser.add_argument(
+    '--noDistances',
+    action='store_true',
+    help='Whenever to not precalculate the distances'
   )
-  addBruteSubparser(subparsers)
+  subparsers = parser.add_subparsers(
+    title='search',
+    description='Valid search algorithms'
+  )
+  bruteSubparser(subparsers)
+  randomSubparser(subparsers)
   args = vars(parser.parse_args())
   args['objective'] = objectiveMap[args['objective']]
   main(args)
