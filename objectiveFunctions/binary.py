@@ -12,12 +12,12 @@ def binary(potentialFacilities, args):
         
         # Calculate AttrP
         AttrJ.clear()
-        for j in range(0,len(args['existing'])):
+        for j in args['competitors']:
             AttrJ.append(dist(i, j, args['distance']))
             
         # Calculate AttrX
         AttrX.clear()
-        for j in range(0,len(potentialFacilities)):
+        for j in potentialFacilities:
             AttrX.append(dist(i, j, args['distance']))
         
         # If the best of AttrX is better than the best of AttrJ
@@ -27,5 +27,5 @@ def binary(potentialFacilities, args):
         # If the best of Attr is equal to the best of AttrJ
         elif (min(AttrX) == min(AttrJ)):
             utility = utility + args['population'][i]/3
-    
+
     return utility/totalDemand*100

@@ -15,7 +15,7 @@ def addSubparser(subparsers):
 def brute(args: dict[str, Any]):
   objective = args['objective']
   # I = args['input']
-  # J = args['existing']
+  # J = args['competitors']
   newLocationCount = args['new']
 
   locations = [0] * newLocationCount

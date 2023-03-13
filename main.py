@@ -10,11 +10,7 @@ from searchAlgorithms.brute import brute, addSubparser as bruteSubparser
 from searchAlgorithms.random import random, addSubparser as randomSubparser
 
 # TODO: 
-# validate args
-# put algorithms into classes
-# time logging
-# logging
-# visuals
+# set up venv
 
 def main(args: dict[str, Any]):
   searchAlgorithm = args.pop('search')
@@ -23,12 +19,14 @@ def main(args: dict[str, Any]):
   args['population'] = np.array([x[2] for x in args['input']])
   args['distance'] = args.pop('input') if args['noDistances'] else buildTriangleMatrix(args.pop('input'))
   # already existing objects with the city's index and location's attractiveness
-  args['existing'] = [0, 1, 2, 3, 4]
+  args['competitors'] = np.loadtxt(args['competitors'])
+  args['competitorsQuality'] = [x[1] for x in args['competitors']]
+  args['competitors'] = [x[0] for x in args['competitors']]
   # potential new objects, need to be found'
   startTime = time.time()
   X = searchAlgorithm(args)
   print(f'Ran for {round(time.time() - startTime, 4)} seconds')
-  print(X)
+  print(X, args['objective'](X, args))
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Solve an optimization problem with the chosen algorithm.')
@@ -36,25 +34,22 @@ if __name__ == "__main__":
     'binary': binary,
     'proportional': proportional
   }
-  # searchMap = {
-  #   'brute': brute,
-  #   'random': random
-  # }
   parser.add_argument(
     '-o', '--objective',
     required=True,
     choices=objectiveMap.keys()
   )
-  # parser.add_argument(
-  #   '-s', '--search',
-  #   required=True,
-  #   choices=searchMap.keys()
-  # )
   parser.add_argument(
     '-i', '--input',
     default='data/demands_LT_50.dat',
     type=str,
     help='Filename of the city coordinate and population data'
+  )
+  parser.add_argument(
+    '-c', '--competitors',
+    default='data/competitors_3.dat',
+    type=str,
+    help='Filename of the existing competitor facilities and their quality'
   )
   parser.add_argument(
     '-n', '--new',
