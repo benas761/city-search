@@ -7,18 +7,18 @@ def binary(potentialFacilities, args):
     utility = 0         # utility of the new facilties
     totalDemand = 0     # total demand of the whole population
     
-    for i in range(0, len[args['population']]):
+    for i in range(0, len(args['population'])):
         totalDemand = totalDemand + args['population'][i]
         
         # Calculate AttrP
         AttrJ.clear()
         for j in range(0,len(args['existing'])):
-            AttrJ.append(dist(i, j, args['distances']))
+            AttrJ.append(dist(i, j, args['distance']))
             
         # Calculate AttrX
         AttrX.clear()
         for j in range(0,len(potentialFacilities)):
-            AttrX.append(dist(i, j, args['distances']))
+            AttrX.append(dist(i, j, args['distance']))
         
         # If the best of AttrX is better than the best of AttrJ
         if (min(AttrX) < min(AttrJ)):
