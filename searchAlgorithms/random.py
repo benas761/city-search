@@ -9,7 +9,7 @@ def rand(start, end): return round(uniform(start, end))
 def addSubparser(subparsers):
   parser = subparsers.add_parser(
     'random',
-    description='Pick x random locations and return the best one'
+    description='Pick c random locations and return the best one'
   )
   parser.add_argument(
     '-c', '--cycles',
@@ -22,13 +22,18 @@ def addSubparser(subparsers):
 def random(args: dict[str, Any]):
   objective = args['objective']
 
-  bestLocations = [rand(0, len(args['population'])) for i in range(args['new'])]
-  bestValue = objective(bestLocations, args)
+  cityIndexes = range(len(args['population']))
+  bestLocationIndexes = [rand(0, len(args['potential'])-1) for i in range(args['new'])]
+  args['newQuality'] = [args['potentialQuality'][i] for i in bestLocationIndexes]
+  bestLocations = [args['potential'][i] for i in bestLocationIndexes]
+  bestValue = objective(bestLocations, cityIndexes, args)
   for i in range(1, args['cycles']):
     # generate random locations
-    locations = [rand(0, len(args['population'])-1) for i in range(args['new'])]
+    locationIndexes = [rand(0, len(args['potential'])-1) for i in range(args['new'])]
+    args['newQuality'] = [args['potentialQuality'][i] for i in locationIndexes]
+    locations = [args['potential'][i] for i in locationIndexes]
     # check if they are better than the best ones
-    value = objective(locations, args)
+    value = objective(locations, cityIndexes, args)
     if value > bestValue:
       bestValue = value
       bestLocations = copy(locations)

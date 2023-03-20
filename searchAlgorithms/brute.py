@@ -1,6 +1,5 @@
 from copy import copy
 from typing import Any
-from argparse import _SubParsersAction, ArgumentParser
 
 # Brute force search
 # Goes through every possible new location variation and picks the best one
@@ -14,28 +13,31 @@ def addSubparser(subparsers):
 
 def brute(args: dict[str, Any]):
   objective = args['objective']
-  # I = args['input']
-  # J = args['competitors']
   newLocationCount = args['new']
 
-  locations = [0] * newLocationCount
-  bestLocations = [0] * newLocationCount
-  bestValue = objective(bestLocations, args)
+  # saves the indexes of potential locations
+  locationIndexes = [0] * newLocationCount
+  cityIndexes = range(len(args['population']))
+  args['newQuality'] = [args['potentialQuality'][i] for i in locationIndexes]
+  bestLocations = [args['potential'][i] for i in locationIndexes]
+  bestValue = objective(bestLocations, cityIndexes, args)
   i = newLocationCount - 1
   maxValueReached = False
-  while locations[0] < len(args['population']):
-    if not maxValueReached and i+1 < len(locations) and locations[i+1] < len(args['population']):
+  while locationIndexes[0] < len(args['potential']):
+    if not maxValueReached and i+1 < len(locationIndexes) and locationIndexes[i+1] < len(args['potential']):
       i += 1
       continue
-    locations[i] += 1
-    if locations[i] < len(args['population']):
-      if len(set(locations)) == len(locations):
-        value = objective(locations, args)
+    locationIndexes[i] += 1
+    if locationIndexes[i] < len(args['potential']):
+      if len(set(locationIndexes)) == len(locationIndexes):
+        locations = [args['potential'][i] for i in locationIndexes]
+        args['newQuality'] = [args['potentialQuality'][i] for i in locationIndexes]
+        value = objective(locations, cityIndexes, args)
         if value > bestValue:
           bestValue = value
           bestLocations = copy(locations)
     elif i != 0:
-      locations[i] = 0
+      locationIndexes[i] = 0
       i -= 1
       maxValueReached = True
       continue
