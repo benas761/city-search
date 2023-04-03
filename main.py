@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 from utils.distances import buildTriangleMatrix
 from objectiveFunctions.binary import binary
-from objectiveFunctions.proportional import proportional
+from objectiveFunctions.proportional import proportional, partiallyProportional
 from objectiveFunctions.basicModel import basicModel
 from searchAlgorithms.brute import brute, addSubparser as bruteSubparser
 from searchAlgorithms.random import random, addSubparser as randomSubparser
@@ -14,20 +14,31 @@ from searchAlgorithms.random import random, addSubparser as randomSubparser
 # Seperate competitor/potential points from existing coordinates
 # Add venv
 
+# Coordinate / Distance data
+# Population data
+# Competitor indexes and quality
+# Potential facility indexes and quality
+# Selected facility indexes and quality
+# objective function
+
 def main(args: dict[str, Any]):
+  args['minAttrMult'] = 0.2
   searchAlgorithm = args.pop('search')
   # load all cities with X, Y and population
   args['input'] = np.loadtxt(args['input'])
   args['population'] = np.array([x[2] for x in args['input']])
+  args['totalPopulation'] = sum(args['population'])
   args['distance'] = args.pop('input') if args['noDistances'] else buildTriangleMatrix(args.pop('input'))
   # already existing objects with the city's index and location's attractiveness
-  args['competitors'] = np.loadtxt(args['competitors'])
-  args['competitorsQuality'] = [x[1] for x in args['competitors']]
-  args['competitors'] = [x[0] for x in args['competitors']]
-  # potential new objects
+  J = open(args['competitors'], 'r').read().split('\n')
+  args['competitors'] = []
+  competitors = J.pop(0).split()
+  for i in competitors:
+    args['competitors'].append([])
+    for j in range(int(i)):
+      args['competitors'][-1].append([float(t) for t in J.pop(0).split()])
+  # # potential new objects
   args['potential'] = np.loadtxt(args['potential'])
-  args['potentialQuality'] = [x[1] for x in args['potential']]
-  args['potential'] = [x[0] for x in args['potential']]
   startTime = time.time()
   X = searchAlgorithm(args)
   print(f'Ran for {round(time.time() - startTime, 4)} seconds')
@@ -38,6 +49,7 @@ if __name__ == "__main__":
   objectiveMap = {
     'binary': binary,
     'proportional': proportional,
+    'partiallyProportional': partiallyProportional,
     'basicModel': basicModel
   }
   parser.add_argument(

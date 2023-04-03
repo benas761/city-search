@@ -41,4 +41,4 @@ def dist(i, j, input):
   if type(input[0]) == np.ndarray:
     return haversine(input[i][0], input[i][1], input[j][0], input[j][1])
   else: 
-    return 1 if i == j else input[getTriangleIndex(i, j)]
+    return 0 if i == j else input[getTriangleIndex(i, j)]

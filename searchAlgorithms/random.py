@@ -24,17 +24,16 @@ def random(args: dict[str, Any]):
 
   cityIndexes = range(len(args['population']))
   bestLocationIndexes = [rand(0, len(args['potential'])-1) for i in range(args['new'])]
-  args['newQuality'] = [args['potentialQuality'][i] for i in bestLocationIndexes]
   bestLocations = [args['potential'][i] for i in bestLocationIndexes]
   bestValue = objective(bestLocations, cityIndexes, args)
   for i in range(1, args['cycles']):
     # generate random locations
     locationIndexes = [rand(0, len(args['potential'])-1) for i in range(args['new'])]
-    args['newQuality'] = [args['potentialQuality'][i] for i in locationIndexes]
-    locations = [args['potential'][i] for i in locationIndexes]
-    # check if they are better than the best ones
-    value = objective(locations, cityIndexes, args)
-    if value > bestValue:
-      bestValue = value
-      bestLocations = copy(locations)
+    if len(set(locationIndexes)) == len(locationIndexes):
+      locations = [args['potential'][i] for i in locationIndexes]
+      # check if they are better than the best ones
+      value = objective(locations, cityIndexes, args)
+      if value > bestValue:
+        bestValue = value
+        bestLocations = copy(locations)
   return bestLocations

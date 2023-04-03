@@ -15,12 +15,12 @@ def binary(potentialFacilities: 'ndarray[int]', capturedObjects: list[int], args
         
         # Calculate AttrP
         AttrJ.clear()
-        for j in args['competitors']:
+        for j, qj in args['competitors']:
             AttrJ.append(dist(i, j, args['distance']))
             
         # Calculate AttrX
         AttrX.clear()
-        for j in potentialFacilities:
+        for x, qx in potentialFacilities:
             AttrX.append(dist(i, j, args['distance']))
         
         minX = min(AttrX)
@@ -39,4 +39,4 @@ def binary(potentialFacilities: 'ndarray[int]', capturedObjects: list[int], args
                 if j == minX: n += 1
             utility = utility + args['population'][i]/n
 
-    return utility # /totalDemand*100
+    return utility/args['totalPopulation']*100

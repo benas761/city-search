@@ -18,7 +18,6 @@ def brute(args: dict[str, Any]):
   # saves the indexes of potential locations
   locationIndexes = [0] * newLocationCount
   cityIndexes = range(len(args['population']))
-  args['newQuality'] = [args['potentialQuality'][i] for i in locationIndexes]
   bestLocations = [args['potential'][i] for i in locationIndexes]
   bestValue = objective(bestLocations, cityIndexes, args)
   i = newLocationCount - 1
@@ -31,7 +30,6 @@ def brute(args: dict[str, Any]):
     if locationIndexes[i] < len(args['potential']):
       if len(set(locationIndexes)) == len(locationIndexes):
         locations = [args['potential'][i] for i in locationIndexes]
-        args['newQuality'] = [args['potentialQuality'][i] for i in locationIndexes]
         value = objective(locations, cityIndexes, args)
         if value > bestValue:
           bestValue = value

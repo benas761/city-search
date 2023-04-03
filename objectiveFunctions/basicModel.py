@@ -14,9 +14,9 @@ def basicModel(potentialFacilities: 'ndarray[int]', capturedObjects: list[int], 
   minAttraction = 2
   for i in capturedObjects: 
     attrJ = []; attrX = []
-    for j, qj in zip(args['competitors'], args['competitorsQuality']):
+    for j, qj in args['competitors']:
       attrJ.append(qj / (1 + dist(i, j, args['distance'])))
-    for x, qx in zip(potentialFacilities, args['newQuality']):
+    for x, qx in potentialFacilities:
       attrX.append(qx / (1 + dist(i, x, args['distance'])))
     maxJ = max(attrJ)
     maxX = max(attrX)
@@ -28,5 +28,5 @@ def basicModel(potentialFacilities: 'ndarray[int]', capturedObjects: list[int], 
       captureByBinary.append(i)
   return \
     proportional(potentialFacilities, captureByProportion, args) + \
-    sum([args['population'][i] for i in captureFull]) + \
+    sum([args['population'][i] for i in captureFull])/args['totalPopulation']*100 + \
     binary(potentialFacilities, captureByBinary, args) # TODO: change this to return the condition of equal w/out any extra checks
