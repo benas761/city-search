@@ -1,9 +1,6 @@
 from copy import copy
 from typing import Any
 
-# Brute force search
-# Goes through every possible new location variation and picks the best one
-
 def addSubparser(subparsers):
   parser = subparsers.add_parser(
     'brute',
@@ -13,13 +10,12 @@ def addSubparser(subparsers):
 
 def brute(args: dict[str, Any]):
   objective = args['objective']
-  newLocationCount = args['new']
+  newLocationCount = args['newCount']
 
   # saves the indexes of potential locations
   locationIndexes = [0] * newLocationCount
-  cityIndexes = range(len(args['population']))
   bestLocations = [args['potential'][i] for i in locationIndexes]
-  bestValue = objective(bestLocations, cityIndexes, args)
+  bestValue = -1
   i = newLocationCount - 1
   maxValueReached = False
   while locationIndexes[0] < len(args['potential']):
@@ -30,7 +26,7 @@ def brute(args: dict[str, Any]):
     if locationIndexes[i] < len(args['potential']):
       if len(set(locationIndexes)) == len(locationIndexes):
         locations = [args['potential'][i] for i in locationIndexes]
-        value = objective(locations, cityIndexes, args)
+        value = objective(locations, args)
         if value > bestValue:
           bestValue = value
           bestLocations = copy(locations)

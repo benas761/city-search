@@ -1,5 +1,10 @@
+# file outputs
+output/*
+distances/*
+
 # VS Code configs
 .vscode
+.ruff.toml
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/

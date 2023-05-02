@@ -1,5 +1,9 @@
 import numpy as np
+from array import array
 import math
+import time
+import logging
+from os.path import exists
 
 matrix = None
 
@@ -21,24 +25,39 @@ def haversine(lat1, lon1, lat2, lon2):
   return rad * c
 
 # maps distances into an array that represents a triangular matrix
-def buildTriangleMatrix(I):
-  idxi = 0
+def buildTriangleMatrix(I: 'np.ndarray[np.ndarray[float]]'):
   global matrix
-  matrix = np.zeros(round((len(I)*(len(I)-1))/2))
-  for i in I:
-    idxj = 0
-    for j in I[:idxi]:
-      matrix[getTriangleIndex(idxi, idxj)] = haversine(i[0], i[1], j[0], j[1])
-      idxj += 1
-    idxi += 1
+  if exists(f'distances/{len(I)}_cities.dat'):
+    file = open(f'distances/{len(I)}_cities.dat', 'rb')
+    matrix = np.frombuffer(file.read())
+  else:
+    startTime = time.time()
+    idxi = 0
+    matrix = np.zeros(round((len(I)*(len(I)-1))/2))
+    for i in I:
+      idxj = 0
+      for j in I[:idxi]:
+        matrix[getTriangleIndex(idxi, idxj)] = haversine(i[0], i[1], j[0], j[1])
+        idxj += 1
+      idxi += 1
+    logging.debug(f'Distance matrix was calculated in {round(time.time() - startTime, 4)} seconds')
+    # write the matrix to file
+    open(f'distances/{len(I)}_cities.dat', 'wb').write(matrix.tobytes());
   return matrix
+
+def assignNoDistances(I: 'np.ndarray[np.ndarray[float]]'):
+  global matrix
+  matrix = I
+  return I
 
 def getTriangleIndex(i, j): 
   if j > i: i, j = j, i
   return int((i * (i-1))/2+j)
 
-def dist(i, j, input):
-  if type(input[0]) == np.ndarray:
-    return haversine(input[i][0], input[i][1], input[j][0], input[j][1])
+def dist(i, j):
+  if matrix is None: raise ValueError("Distance matrix was not initiated")
+  if i == j: return 0
+  if type(matrix[0]) == np.ndarray:
+    return haversine(matrix[int(i)][0], matrix[int(i)][1], matrix[int(j)][0], matrix[int(j)][1])
   else: 
-    return 0 if i == j else input[getTriangleIndex(i, j)]
+    return matrix[getTriangleIndex(i, j)]
