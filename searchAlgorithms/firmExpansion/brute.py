@@ -1,21 +1,16 @@
-from copy import copy
 from typing import Any
+from searchAlgorithms.firmExpansion.utils import calculateCannibalism, checkPoint
 
-def addSubparser(subparsers):
-  parser = subparsers.add_parser(
-    'brute',
-    description='Use depth-first search to check every possible combination'
-  )
-  parser.set_defaults(search=brute)
+# Brute force search
+# Goes through every possible new location variation and picks the best one
 
 def brute(args: dict[str, Any]):
   objective = args['objective']
   newLocationCount = args['newCount']
-
   # saves the indexes of potential locations
   locationIndexes = [0] * newLocationCount
-  bestLocations = [args['potential'][i] for i in locationIndexes]
-  bestValue = -1
+  bestLocations = []
+  bestValues = []
   i = newLocationCount - 1
   maxValueReached = False
   while locationIndexes[0] < len(args['potential']):
@@ -27,9 +22,9 @@ def brute(args: dict[str, Any]):
       if len(set(locationIndexes)) == len(locationIndexes):
         locations = [args['potential'][i] for i in locationIndexes]
         value = objective(locations, args)
-        if value > bestValue:
-          bestValue = value
-          bestLocations = copy(locations)
+        cannibalism = calculateCannibalism(args, locations)
+        # append to bestLocations if the point is pareto optimal
+        checkPoint([value, cannibalism], locations, bestValues, bestLocations)
     elif i != 0:
       locationIndexes[i] = 0
       i -= 1

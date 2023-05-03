@@ -1,13 +1,14 @@
 from typing import Any
+import logging
 import searchAlgorithms.enteringFirm as ef
 import searchAlgorithms.firmExpansion as fe
 
 
 def random(args: 'dict[str: Any]'):
-  return ef.random.random(args) if args['expandingFrom'] == -1 else fe.random.random(args)
+  return ef.random.random(args) if args['expandingFirm'] == -1 else fe.random.random(args)
 
 def brute(args: 'dict[str: Any]'):
-  return ef.brute.brute(args) if args['expandingFrom'] == -1 else fe.brute.brute(args)
+  return ef.brute.brute(args) if args['expandingFirm'] == -1 else fe.brute.brute(args)
 
 def bruteSubparser(subparsers):
   parser = subparsers.add_parser(

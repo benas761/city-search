@@ -4,10 +4,15 @@ from typing import Any
 import time
 import numpy as np
 import argparse
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from utils.distances import buildTriangleMatrix, assignNoDistances
 from objectiveFunctions.binary import binary
 from objectiveFunctions.proportional import paretoProportional, proportional, partiallyProportional
 from searchAlgorithms import bruteSubparser, randomSubparser
+from searchAlgorithms.firmExpansion.utils import calculateCannibalism
+
+X = []
 
 def readCompetitors(competitorFile: str):
   competitorStr = open(competitorFile, 'r').read().split('\n')
@@ -17,26 +22,51 @@ def readCompetitors(competitorFile: str):
     competitors.append([])
     for j in range(int(i)):
       competitors[-1].append([float(t) for t in competitorStr.pop(0).split()])
-  return np.array(competitors)
+  return competitors
 
 def main(args: dict[str, Any]):
   logging.basicConfig(level=args['loggingLevel'].upper())
   searchAlgorithm = args.pop('search')
-  args['expandingFrom'] = 0
   # load all cities with X, Y and population
   args['points'] = np.loadtxt(args['points'])
   args['population'] = np.array([x[2] for x in args['points']])
   args['totalPopulation'] = sum(args['population'])
-  args['distance'] = assignNoDistances(args.pop('points')) if args['noDistances'] else buildTriangleMatrix(args.pop('points'))
+  args['distance'] = assignNoDistances(args['points']) if args['noDistances'] else buildTriangleMatrix(args['points'])
   # already existing objects with the city's index and location's attractiveness
   args['competitors'] = readCompetitors(args['competitors'])
   # potential new objects
   args['potential'] = np.loadtxt(args['potential'])
   startTime = time.time()
+  global X
   X = searchAlgorithm(args)
   logging.debug(f'Ran for {round(time.time() - startTime, 4)} seconds')
-  logging.info(f"Chosen objects: {', '.join([str(x) for x, qx in X])}")
-  logging.info(f"Captured demand: {args['objective'](X, range(len(args['population'])), args)}")
+  if args['expandingFirm'] == -1:
+    logging.info(f"Chosen objects: {', '.join([str(int(x)) for x, qx in X])}")
+    logging.info(f"Captured demand: {args['objective'](X, args)}")
+    X = [X]
+    animate(0)
+    plt.show()
+  else:
+    for x in X:
+      demand = args['objective'](x, args)
+      cannibalism = calculateCannibalism(args, x)
+      logging.info(f"Chosen objects: {', '.join([str(int(x)) for x, qx in x])}")
+      logging.info(f"Captured demand: {demand}")
+      logging.info(f"Cannibalism effect: {cannibalism}\n")
+    fig = plt.figure(figsize=(7, 5))
+    animation = FuncAnimation(fig, animate, interval=3000)
+    plt.show()
+
+def animate(i):
+  plt.clf()
+  x = [j[0] for j in args['points']]
+  y = [j[1] for j in args['points']]
+  plt.scatter(x, y, c='b')
+  # Select the point that the index of the facility X[i] points to
+  idx = i % len(X)
+  x = [args['points'][int(j[0])][0] for j in X[idx]]
+  y = [args['points'][int(j[0])][1] for j in X[idx]]
+  plt.scatter(x, y, s=50, c='r')
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Solve an optimization problem with the chosen algorithm.')
@@ -52,8 +82,15 @@ if __name__ == "__main__":
     choices=objectiveMap.keys()
   )
   parser.add_argument(
+    '-e', '--expandingFirm',
+    default=-1,
+    type=int,
+    help='The index of the competitor firm that gets treated as the expanding firm for CFLP/FE problem. Default is -1, solving for CFLP/EF'
+  )
+  parser.add_argument(
     '-A', '--minAttraction',
     default=0.2,
+    type=float,
     help='The minimum attraction percentage of its competitors that every object has to reach. Used in proportional models'
   )
   parser.add_argument(
@@ -87,7 +124,7 @@ if __name__ == "__main__":
   )
   parser.add_argument(
     '--loggingLevel',
-    default='debug',
+    default='info',
     choices=['debug', 'info', 'warning', 'error', 'critical']
   )
   subparsers = parser.add_subparsers(

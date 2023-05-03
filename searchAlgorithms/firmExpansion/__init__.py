@@ -1,2 +1,1 @@
-from searchAlgorithms.firmExpansion.brute import brute
-from searchAlgorithms.firmExpansion.random import random
+from . import random, brute
