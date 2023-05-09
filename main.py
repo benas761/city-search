@@ -3,14 +3,16 @@ import logging
 from typing import Any
 import time
 import numpy as np
+from sys import argv
 import argparse
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from gui import drawWindow
 from utils.distances import buildTriangleMatrix, assignNoDistances
 from objectiveFunctions.binary import binary
 from objectiveFunctions.proportional import paretoProportional, proportional, partiallyProportional
-from searchAlgorithms import bruteSubparser, randomSubparser
-from searchAlgorithms.firmExpansion.utils import calculateCannibalism
+from searchAlgorithms import bruteSubparser, randomSubparser, rdoaSubparser
+from searchAlgorithms.firmExpansion.utils import calculateCannibalism, calculatePreexistingValue
 
 X = []
 
@@ -35,11 +37,11 @@ def main(args: dict[str, Any]):
   # already existing objects with the city's index and location's attractiveness
   args['competitors'] = readCompetitors(args['competitors'])
   # potential new objects
-  args['potential'] = np.loadtxt(args['potential'])
+  args['candidates'] = np.loadtxt(args['candidates'])
   startTime = time.time()
   global X
   X = searchAlgorithm(args)
-  logging.debug(f'Ran for {round(time.time() - startTime, 4)} seconds')
+  logging.info(f'Ran for {round(time.time() - startTime, 4)} seconds')
   if args['expandingFirm'] == -1:
     logging.info(f"Chosen objects: {', '.join([str(int(x)) for x, qx in X])}")
     logging.info(f"Captured demand: {args['objective'](X, args)}")
@@ -49,12 +51,13 @@ def main(args: dict[str, Any]):
   else:
     for x in X:
       demand = args['objective'](x, args)
-      cannibalism = calculateCannibalism(args, x)
+      preexistingValue = calculatePreexistingValue(args)
+      cannibalism = calculateCannibalism(args, x, preexistingValue)
       logging.info(f"Chosen objects: {', '.join([str(int(x)) for x, qx in x])}")
       logging.info(f"Captured demand: {demand}")
       logging.info(f"Cannibalism effect: {cannibalism}\n")
     fig = plt.figure(figsize=(7, 5))
-    animation = FuncAnimation(fig, animate, interval=3000)
+    animation = FuncAnimation(fig, animate, interval=3000, save_count=12)
     plt.show()
 
 def animate(i):
@@ -68,7 +71,7 @@ def animate(i):
   y = [args['points'][int(j[0])][1] for j in X[idx]]
   plt.scatter(x, y, s=50, c='r')
 
-if __name__ == "__main__":
+def parseArgs():
   parser = argparse.ArgumentParser(description='Solve an optimization problem with the chosen algorithm.')
   objectiveMap = {
     'binary': binary,
@@ -133,10 +136,11 @@ if __name__ == "__main__":
   )
   bruteSubparser(subparsers)
   randomSubparser(subparsers)
+  rdoaSubparser(subparsers)
   args = vars(parser.parse_args())
   args['objective'] = objectiveMap[args['objective']]
-  main(args)
+  return args
 
-# add a number which pre-existing firm's facilities are
-# if the number is -1, solve the usual
-# else, validate that the firm and extra competitors exist and redirect to other search algorithms
+if __name__ == "__main__":
+  args = drawWindow() if len(argv) == 1 else parseArgs()
+  main(args)

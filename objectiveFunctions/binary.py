@@ -16,7 +16,7 @@ def binary(potentialFacilities: 'ndarray[int]', args: dict[str, Any]):
                 AttrJ.append(dist(i, j))  
         AttrX.clear()
         for x, qx in potentialFacilities:
-            AttrX.append(dist(i, j))
+            AttrX.append(dist(i, x))
         minX = min(AttrX)
         minJ = min(AttrJ)
 

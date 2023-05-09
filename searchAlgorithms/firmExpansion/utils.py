@@ -13,11 +13,12 @@ def checkPoint(
 ):
   i = 0
   value, cannibalism = Xvals
-  for pvalue, pcannibalism in Pvals:
-    # if P is dominant, X goes away and the same arr gets returned
+  while i < len(Pvals): # for j, (pvalue, pcannibalism) in enumerate(Pvals):))
+    # if P is dominant, the new value gets discarded
+    pvalue, pcannibalism = Pvals[i]
     if isDominant(pvalue, pcannibalism, value, cannibalism):
       return P
-    elif isDominant(value, cannibalism, pvalue, pcannibalism):
+    if isDominant(value, cannibalism, pvalue, pcannibalism):
       P.pop(i)
       Pvals.pop(i)
       i -= 1
@@ -26,12 +27,19 @@ def checkPoint(
   Pvals.append([value, cannibalism])
   return P
 
-def calculateCannibalism(args: dict[str, Any], locations: list[int]):
+# calculate the market value of the firm's preexisting facilities by removing
+# them from preexisting facilities and adding them as X
+def calculatePreexistingValue(args: dict[str, Any]):
+  objective = args['objective']
+  oldFacilities = args['competitors'].pop(args['expandingFirm'])
+  preexistingFacilityValue = objective(oldFacilities, args)
+  args['competitors'].insert(args['expandingFirm'], oldFacilities)
+  return preexistingFacilityValue
+
+def calculateCannibalism(args: dict[str, Any], locations: list[int], preexistingFacilityValue: float):
   objective = args['objective']
   # delete firm's facilities from pre-existing ones
   oldFacilities = args['competitors'].pop(args['expandingFirm'])
-  # calculate their value
-  oldValue = objective(oldFacilities, args)
   # add the new locations as pre-existing facilities
   args['competitors'].insert(args['expandingFirm'], locations)
   # calculate value
@@ -39,5 +47,5 @@ def calculateCannibalism(args: dict[str, Any], locations: list[int]):
   # reverse pre-existing facilities
   args['competitors'].pop(args['expandingFirm'])
   args['competitors'].insert(args['expandingFirm'], oldFacilities)
-  cannibalism = oldValue - newValue
+  cannibalism = preexistingFacilityValue - newValue
   return cannibalism

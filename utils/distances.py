@@ -54,7 +54,7 @@ def getTriangleIndex(i, j):
   if j > i: i, j = j, i
   return int((i * (i-1))/2+j)
 
-def dist(i, j):
+def dist(i: int, j: int) -> float:
   if matrix is None: raise ValueError("Distance matrix was not initiated")
   if i == j: return 0
   if type(matrix[0]) == np.ndarray:
