@@ -1,3 +1,4 @@
+import os
 import math
 import time
 import csv
@@ -61,13 +62,13 @@ def citySpeed():
 
 # how accurate the algorithms are with different amounts of cycles and locations
 def searchSpeed():
-  points = np.loadtxt('data/demands_LT_12395.dat')
+  points = np.loadtxt('data/case2/demands_LT_1000.dat')
   args = {
     'objective': proportional,
     'minAttraction': 0.2,
     'distance': buildTriangleMatrix(points), 
-    'competitors': readCompetitors('data/case1/competitors_10.dat'),
-    'candidates': np.loadtxt('data/case1/candidates_500.dat'),
+    'competitors': readCompetitors('data/case2/competitors_10.dat'),
+    'candidates': np.loadtxt('data/case2/candidates_500.dat'),
     'expandingFirm': -1,
     'newCount': 5,
     'noDistances': False,
@@ -77,34 +78,36 @@ def searchSpeed():
     'search': random,
     'cycles': 1
   }
-  resultsFile = open('output/searchSpeed.csv', 'w')
-  writer = csv.DictWriter(resultsFile, ['search', 'cycles', 'value', 'time'])
-  writer.writeheader()
   searches = [
     (random, 'random'),
     (rdoa, 'rdoa'),
     (rdoa_d, 'rdoa-d')
   ]
-  # for cycles in range(1000, 5001, 1000):
-  for cycles in [20]:
-    args['cycles'] = cycles
-    for search, searchName in searches:
-      args['search'] = search
-      startTime = time.time()
-      X = args['search'](args)
-      searchTime = round(time.time() - startTime, 4)
-      row = {
-        'search': searchName,
-        'cycles': cycles,
-        'value': args['objective'](X, args),
-        'time': searchTime
-      }
-      print(row)
-      writer.writerow(row)
+  for search, searchName in searches:
+    file = open(f"output/{searchName}Speed.csv", 'w')
+    writer = csv.DictWriter(file, ['cycles', 'value', 'time'])
+    writer.writeheader()
+    
+    args['search'] = search
+    for cycles in range(100, 501, 50):
+      for repeat in range(20):
+        args['cycles'] = cycles
+        startTime = time.time()
+        X = args['search'](args)
+        searchTime = round(time.time() - startTime, 4)
+        row = {
+          'cycles': cycles,
+          'value': round(args['objective'](X, args), 4),
+          'time': searchTime
+        }
+        print(row)
+        writer.writerow(row)
+    file.close()
 
 # how long they take with an increasing number of objects on a smaller amount of cities
  
 if __name__ == "__main__":
+  os.makedirs('./output', exist_ok=True)
   # citySpeed()
   searchSpeed()
-  # generateObjects("data/case1/candidates_500.dat", 500, 12395)
+  # generateObjects("data/case2/candidates_500.dat", 500, 1000)

@@ -109,7 +109,7 @@ def parseArgs():
     help='Filename of the existing competitor facilities and their quality'
   )
   parser.add_argument(
-    '-L', '--potential',
+    '-L', '--candidates',
     default='data/potentialLocations_12.dat',
     type=str,
     help='Filename of the planned potential new facilities and their quality'

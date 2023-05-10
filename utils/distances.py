@@ -1,5 +1,5 @@
 import numpy as np
-from array import array
+import os
 import math
 import time
 import logging
@@ -42,7 +42,8 @@ def buildTriangleMatrix(I: 'np.ndarray[np.ndarray[float]]'):
       idxi += 1
     logging.debug(f'Distance matrix was calculated in {round(time.time() - startTime, 4)} seconds')
     # write the matrix to file
-    open(f'distances/{len(I)}_cities.dat', 'wb').write(matrix.tobytes());
+    os.makedirs('./distances', exist_ok=True)
+    open(f'./distances/{len(I)}_cities.dat', 'wb').write(matrix.tobytes());
   return matrix
 
 def assignNoDistances(I: 'np.ndarray[np.ndarray[float]]'):
