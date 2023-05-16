@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from gui import drawWindow
 from utils.distances import buildTriangleMatrix, assignNoDistances
-from objectiveFunctions.binary import binary
-from objectiveFunctions.proportional import paretoProportional, proportional, partiallyProportional
-from searchAlgorithms import bruteSubparser, randomSubparser, rdoaSubparser
+from customerRules.binary import binary
+from customerRules.proportional import paretoProportional, proportional, partiallyProportional
+from searchAlgorithms import bruteSubparser, randomSubparser, rdoaSubparser, rdoadSubparser
 from searchAlgorithms.firmExpansion.utils import calculateCannibalism, calculatePreexistingValue
 
 X = []
@@ -137,6 +137,7 @@ def parseArgs():
   bruteSubparser(subparsers)
   randomSubparser(subparsers)
   rdoaSubparser(subparsers)
+  rdoadSubparser(subparsers)
   args = vars(parser.parse_args())
   args['objective'] = objectiveMap[args['objective']]
   return args

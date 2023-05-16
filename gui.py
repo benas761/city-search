@@ -1,20 +1,20 @@
 import PySimpleGUI as sg
-from objectiveFunctions.binary import binary
-from objectiveFunctions.proportional import paretoProportional, partiallyProportional, proportional
-
-from searchAlgorithms import brute, random
+import customerRules
+import searchAlgorithms
 
 def drawWindow():
   sg.theme('default1')
   searchMap = {
-    'brute': brute,
-    'random': random
+    'brute': searchAlgorithms.brute,
+    'random': searchAlgorithms.random,
+    'rdoa': searchAlgorithms.rdoa,
+    'rdoa-d': searchAlgorithms.rdoa_d
   }
   objectiveMap = {
-    'binary': binary,
-    'proportional': proportional,
-    'partiallyProportional': partiallyProportional,
-    'paretoProportional': paretoProportional
+    'binary': customerRules.binary.binary,
+    'proportional': customerRules.proportional.proportional,
+    'partiallyProportional': customerRules.proportional.partiallyProportional,
+    'paretoProportional': customerRules.proportional.paretoProportional
   }
 
   def layout(optionColumn):
@@ -109,7 +109,7 @@ def drawWindow():
       window['cyclesTitle'].Update(visible=False)
       window['cycles'].Update(visible=False)
       # add some extra variables from subparsers
-      if values['search'] == 'random':
+      if values['search'] in ['random', 'rdoa', 'rdoa-d']:
         window['cyclesTitle'].Update(visible=True)
         window['cycles'].Update(visible=True)
   window.close()

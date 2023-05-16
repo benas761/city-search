@@ -1,6 +1,6 @@
 from copy import copy
 from typing import Any, Callable
-from random import uniform
+from random import uniform, sample
 import numpy as np
 
 from utils.distances import dist
@@ -8,8 +8,11 @@ from utils.distances import dist
 
 def rdoa(args: dict[str, Any], locationFunction: Callable):
   # take the first s potential locations
-  X = args['candidates'][:args['newCount']]
-  XRankIndexes = range(args['newCount'])
+  # X = args['candidates'][:args['newCount']]
+  # take s random locations instead
+  XRankIndexes = sample(range(len(args['candidates'])), args['newCount'])
+  X = [args['candidates'][i] for i in XRankIndexes]
+
   nX = []
   nXRankIndexes = []
 
@@ -35,7 +38,11 @@ def rdoa(args: dict[str, Any], locationFunction: Callable):
               newCandidates.append(args['candidates'][j])
               newRanks.append(ranks[j])
           nx = locationFunction(newCandidates, newRanks, x)
-          nXRankIndex = [i for i, l in enumerate(args['candidates']) if (l == nx).all()][0]
+          nXRankIndex = None
+          for i, l in enumerate(args['candidates']):
+            if (l == nx).all():
+              nXRankIndex = i
+              break
           nX.append(nx)
           nXRankIndexes.append(nXRankIndex)
           solutionChanged = True

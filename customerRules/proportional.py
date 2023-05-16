@@ -1,10 +1,10 @@
 from typing import Any
 from xmlrpc.client import MAXINT
 from utils.distances import dist
-from numpy import ndarray, array, concatenate
+import numpy as np
 
 # Alternatively, Huff model
-def proportional(X: 'ndarray[int]', args: dict[str, Any]):
+def proportional(X: 'np.ndarray[int]', args: dict[str, Any]):
   attractedPopulation = 0
   for i in range(len(args['population'])):
     aX = 0
@@ -25,7 +25,7 @@ def proportional(X: 'ndarray[int]', args: dict[str, Any]):
     attractedPopulation += aX / (aX + aJ) * args['population'][i]
   return attractedPopulation/args['totalPopulation']*100
 
-def partiallyProportional(X: 'ndarray[int]', args: dict[str, Any]):
+def partiallyProportional(X: 'np.ndarray[int]', args: dict[str, Any]):
   attractedPopulation = 0
   for i in range(len(args['population'])):
     aX = 0
@@ -50,7 +50,7 @@ def partiallyProportional(X: 'ndarray[int]', args: dict[str, Any]):
     attractedPopulation += aX / (aX + aJ) * args['population'][i]
   return attractedPopulation/args['totalPopulation']*100
 
-def getParetoOptimalLocations(i: int, J: 'list[(int, int)]', K: 'list[(int, int)]'):
+def getParetoOptimalLocations(i: int, J: 'np.ndarray[(int, int)]', K: 'np.ndarray[(int, int)]'):
   optimalJ = []
   for j, qj in J:
     isOptimal = True
@@ -62,18 +62,18 @@ def getParetoOptimalLocations(i: int, J: 'list[(int, int)]', K: 'list[(int, int)
         isOptimal = False
         break
     if isOptimal: optimalJ.append((j, qj))
-  return array(optimalJ)
+  return np.array(optimalJ)
 
-def paretoProportional(X: 'ndarray[int]', args: dict[str, Any]):
+def paretoProportional(X: 'np.ndarray[int]', args: dict[str, Any]):
   attractedPopulation = 0
   for i in range(len(args['population'])):
     aX = 0
     aJ = 0
     minaj = MAXINT
     maxaj = 0
-    J = array([(j, qj) for firm in args['competitors'] for j, qj in firm])
-    paretoJ = getParetoOptimalLocations(i, J, concatenate([X, J]))
-    paretoX = getParetoOptimalLocations(i, X, concatenate([X, J]))
+    J = np.array([(j, qj) for firm in args['competitors'] for j, qj in firm])
+    paretoJ = getParetoOptimalLocations(i, J, np.concatenate([X, J]))
+    paretoX = getParetoOptimalLocations(i, X, np.concatenate([X, J]))
 
     # the rest is identical to the proportional model
     for j, qj in paretoJ:

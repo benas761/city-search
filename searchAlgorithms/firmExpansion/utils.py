@@ -16,7 +16,7 @@ def checkPoint(
   while i < len(Pvals): # for j, (pvalue, pcannibalism) in enumerate(Pvals):))
     # if P is dominant, the new value gets discarded
     pvalue, pcannibalism = Pvals[i]
-    if isDominant(pvalue, pcannibalism, value, cannibalism):
+    if isDominant(pvalue, pcannibalism, value, cannibalism) or np.allclose(P[i], X):
       return P
     if isDominant(value, cannibalism, pvalue, pcannibalism):
       P.pop(i)
@@ -29,7 +29,7 @@ def checkPoint(
 
 # calculate the market value of the firm's preexisting facilities by removing
 # them from preexisting facilities and adding them as X
-def calculatePreexistingValue(args: dict[str, Any]):
+def calculatePreexistingValue(args: dict[str, Any]) -> float:
   objective = args['objective']
   oldFacilities = args['competitors'].pop(args['expandingFirm'])
   preexistingFacilityValue = objective(oldFacilities, args)

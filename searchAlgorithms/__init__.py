@@ -13,13 +13,13 @@ def rdoa(args: 'dict[str: Any]'):
   if args['expandingFirm'] == -1:
     return ef.rdoa.rdoa(args, ef.rdoaRankingLocation)
   else:
-    raise ValueError('RDOA does not have a variant for an expanding firm')
+    return fe.rdoa.rdoa(args, ef.rdoaDistanceLocation)
 
 def rdoa_d(args: 'dict[str: Any]'):
   if args['expandingFirm'] == -1:
     return ef.rdoa.rdoa(args, ef.rdoaDistanceLocation)
   else:
-    raise ValueError('RDOA-D does not have a variant for an expanding firm')
+    return fe.rdoa.rdoa(args, ef.rdoaRankingLocation)
 
 def addCycles(parser):
   parser.add_argument(
@@ -53,7 +53,7 @@ def rdoaSubparser(subparsers):
   addCycles(parser)
   parser.set_defaults(search=rdoa)
 
-def rdoaSubparser(subparsers):
+def rdoadSubparser(subparsers):
   parser = subparsers.add_parser(
     'rdoa-d',
     description='Ranking-based discrete optimisation algorithm with distance ranking (RDOA-D)'
