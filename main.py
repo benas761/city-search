@@ -33,7 +33,10 @@ def main(args: dict[str, Any]):
   args['points'] = np.loadtxt(args['points'])
   args['population'] = np.array([x[2] for x in args['points']])
   args['totalPopulation'] = sum(args['population'])
-  args['distance'] = assignNoDistances(args['points']) if args['noDistances'] else buildTriangleMatrix(args['points'])
+  if args['noDistances']:
+    assignNoDistances(args['points'])
+  else:
+    buildTriangleMatrix(args['points'])
   # already existing objects with the city's index and location's attractiveness
   args['competitors'] = readCompetitors(args['competitors'])
   # potential new objects

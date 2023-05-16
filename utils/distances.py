@@ -27,8 +27,8 @@ def haversine(lat1, lon1, lat2, lon2):
 # maps distances into an array that represents a triangular matrix
 def buildTriangleMatrix(I: 'np.ndarray[np.ndarray[float]]'):
   global matrix
-  if exists(f'distances/{len(I)}_cities.dat'):
-    file = open(f'distances/{len(I)}_cities.dat', 'rb')
+  if exists(f'distances/{len(I)}_points.dat'):
+    file = open(f'distances/{len(I)}_points.dat', 'rb')
     matrix = np.frombuffer(file.read())
   else:
     startTime = time.time()
@@ -43,7 +43,7 @@ def buildTriangleMatrix(I: 'np.ndarray[np.ndarray[float]]'):
     logging.debug(f'Distance matrix was calculated in {round(time.time() - startTime, 4)} seconds')
     # write the matrix to file
     os.makedirs('./distances', exist_ok=True)
-    open(f'./distances/{len(I)}_cities.dat', 'wb').write(matrix.tobytes());
+    open(f'./distances/{len(I)}_points.dat', 'wb').write(matrix.tobytes());
   return matrix
 
 def assignNoDistances(I: 'np.ndarray[np.ndarray[float]]'):

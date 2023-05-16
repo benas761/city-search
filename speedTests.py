@@ -68,7 +68,6 @@ def searchSpeed(caseFolder: str):
   args = {
     'objective': proportional,
     'minAttraction': 0.2,
-    'distance': buildTriangleMatrix(points), 
     'competitors': readCompetitors('data/case3/competitors_10.dat'),
     'candidates': np.loadtxt('data/case3/candidates_50.dat'),
     'expandingFirm': -1,
@@ -80,6 +79,7 @@ def searchSpeed(caseFolder: str):
     'search': random,
     'cycles': 1
   }
+  buildTriangleMatrix(points)
   searches = [
     (random, 'random'),
     (rdoa, 'rdoa'),
