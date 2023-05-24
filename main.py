@@ -1,5 +1,4 @@
 #!python
-import logging
 from typing import Any
 import time
 import numpy as np
@@ -7,10 +6,9 @@ from sys import argv
 import argparse
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from gui import drawWindow
+from utils.gui import drawWindow
+from utils.maps import objectiveMap
 from utils.distances import buildTriangleMatrix, assignNoDistances
-from customerRules.binary import binary
-from customerRules.proportional import paretoProportional, proportional, partiallyProportional
 from searchAlgorithms import bruteSubparser, randomSubparser, rdoaSubparser, rdoadSubparser
 from searchAlgorithms.firmExpansion.utils import calculateCannibalism, calculatePreexistingValue
 
@@ -27,7 +25,6 @@ def readCompetitors(competitorFile: str):
   return competitors
 
 def main(args: dict[str, Any]):
-  logging.basicConfig(level=args['loggingLevel'].upper())
   searchAlgorithm = args.pop('search')
   # load all cities with X, Y and population
   args['points'] = np.loadtxt(args['points'])
@@ -44,10 +41,10 @@ def main(args: dict[str, Any]):
   startTime = time.time()
   global X
   X = searchAlgorithm(args)
-  logging.info(f'Ran for {round(time.time() - startTime, 4)} seconds')
+  print(f'Ran for {round(time.time() - startTime, 4)} seconds')
   if args['expandingFirm'] == -1:
-    logging.info(f"Chosen objects: {', '.join([str(int(x)) for x, qx in X])}")
-    logging.info(f"Captured demand: {args['objective'](X, args)}")
+    print(f"Chosen objects: {', '.join([str(int(x)) for x, qx in X])}")
+    print(f"Captured demand: {args['objective'](X, args)}")
     X = [X]
     animate(0)
     plt.show()
@@ -56,9 +53,9 @@ def main(args: dict[str, Any]):
       demand = args['objective'](x, args)
       preexistingValue = calculatePreexistingValue(args)
       cannibalism = calculateCannibalism(args, x, preexistingValue)
-      logging.info(f"Chosen objects: {', '.join([str(int(x)) for x, qx in x])}")
-      logging.info(f"Captured demand: {demand}")
-      logging.info(f"Cannibalism effect: {cannibalism}\n")
+      print(f"Chosen objects: {', '.join([str(int(x)) for x, qx in x])}")
+      print(f"Captured demand: {demand}")
+      print(f"Cannibalism effect: {cannibalism}\n")
     fig = plt.figure(figsize=(7, 5))
     animation = FuncAnimation(fig, animate, interval=3000, save_count=12)
     plt.show()
@@ -76,12 +73,6 @@ def animate(i):
 
 def parseArgs():
   parser = argparse.ArgumentParser(description='Solve an optimization problem with the chosen algorithm.')
-  objectiveMap = {
-    'binary': binary,
-    'proportional': proportional,
-    'partiallyProportional': partiallyProportional,
-    'paretoProportional': paretoProportional
-  }
   parser.add_argument(
     '-o', '--objective',
     required=True,
@@ -101,19 +92,19 @@ def parseArgs():
   )
   parser.add_argument(
     '-I', '--points',
-    default='data/demands_LT_50.dat',
+    default='data/case0/demands.dat',
     type=str,
     help='Filename of the city coordinate and population data'
   )
   parser.add_argument(
     '-J', '--competitors',
-    default='data/competitors_4.dat',
+    default='data/case0/competitors.dat',
     type=str,
     help='Filename of the existing competitor facilities and their quality'
   )
   parser.add_argument(
     '-L', '--candidates',
-    default='data/potentialLocations_12.dat',
+    default='data/case0/candidates.dat',
     type=str,
     help='Filename of the planned potential new facilities and their quality'
   )
@@ -127,11 +118,6 @@ def parseArgs():
     '--noDistances',
     action='store_true',
     help='Whenever to not precalculate the distances'
-  )
-  parser.add_argument(
-    '--loggingLevel',
-    default='info',
-    choices=['debug', 'info', 'warning', 'error', 'critical']
   )
   subparsers = parser.add_subparsers(
     title='search',

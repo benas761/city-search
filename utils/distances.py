@@ -2,7 +2,6 @@ import numpy as np
 import os
 import math
 import time
-import logging
 from os.path import exists
 
 matrix = None
@@ -40,7 +39,7 @@ def buildTriangleMatrix(I: 'np.ndarray[np.ndarray[float]]'):
         matrix[getTriangleIndex(idxi, idxj)] = haversine(i[0], i[1], j[0], j[1])
         idxj += 1
       idxi += 1
-    logging.debug(f'Distance matrix was calculated in {round(time.time() - startTime, 4)} seconds')
+    print(f'Distance matrix was calculated in {round(time.time() - startTime, 4)} seconds')
     # write the matrix to file
     os.makedirs('./distances', exist_ok=True)
     open(f'./distances/{len(I)}_points.dat', 'wb').write(matrix.tobytes());

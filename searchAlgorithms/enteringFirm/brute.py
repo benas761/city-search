@@ -11,7 +11,7 @@ def brute(args: dict[str, Any]):
   # saves the indexes of potential locations
   locationIndexes = [0] * newLocationCount
   bestLocations = [args['candidates'][i] for i in locationIndexes]
-  bestValue = -1
+  bestValue = 0
   i = newLocationCount - 1
   maxValueReached = False
   while locationIndexes[0] < len(args['candidates']):
