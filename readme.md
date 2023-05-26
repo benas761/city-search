@@ -32,7 +32,7 @@ Dirbta su konkurencingos įmonės (CFLP) uždavinio variantais:
   - Aplinka terminale aktyvuojama komanda:
     - Windows: `.\.venv\Scripts\activate`
     - Unix: `source ./.venv/bin/activate`
-- Suinstaliuoti reikalingus modulius, komanda `python -m pip -r requirements.txt`
+- Suinstaliuoti reikalingus modulius, komanda `python -m pip install -r requirements.txt`
 ## Programos leidimas
 - Keli programos paleidimo variantai:
   - Paleisti pagrindinį failą ir parinkti paieškos parametrus per GUI: `python main.py`
