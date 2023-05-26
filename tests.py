@@ -4,7 +4,6 @@ import time
 import argparse
 import csv
 import numpy as np
-from typing import Iterable
 from random import sample, uniform
 from utils.maps import searchMap
 from customerRules.binary import binary
@@ -24,7 +23,8 @@ def generateFiles(args):
 # how accurate the algorithms are with different amounts of cycles and locations
 def algorithmTest(cmdArgs):
   caseFolder, algorithms = cmdArgs['case'], cmdArgs['algorithms']
-  cycleCounts, repeats = cmdArgs['cycles'], cmdArgs['repeats']
+  cycleCounts, repeats = cmdArgs['cycles'], int(cmdArgs['repeats'])
+  newCount = int(cmdArgs['newCount'])
 
   points = np.loadtxt(f'data/{caseFolder}/demands.dat')
   searches = [(searchMap[alg], alg) for alg in algorithms]
@@ -34,7 +34,7 @@ def algorithmTest(cmdArgs):
     'competitors': readCompetitors(f'data/{caseFolder}/competitors.dat'),
     'candidates': np.loadtxt(f'data/{caseFolder}/candidates.dat'),
     'expandingFirm': -1,
-    'newCount': 5,
+    'newCount': newCount,
     'noDistances': False,
     'population': [i[2] for i in points],
     'totalPopulation': sum([i[2] for i in points]),
@@ -43,6 +43,7 @@ def algorithmTest(cmdArgs):
 
   for search, searchName in searches:
     os.makedirs(f"./output/{caseFolder}", exist_ok=True)
+    print(f"./output/{caseFolder}")
     file = open(f"output/{caseFolder}/{searchName}.csv", 'w', newline='')
     writer = csv.DictWriter(file, ['cycles', 'value', 'time'])
     writer.writeheader()
@@ -50,7 +51,7 @@ def algorithmTest(cmdArgs):
     args['search'] = search
     for cycles in cycleCounts:
       for repeat in range(repeats):
-        args['cycles'] = cycles
+        args['cycles'] = int(cycles)
         startTime = time.time()
         X = args['search'](args)
         searchTime = round(time.time() - startTime, 4)
@@ -62,6 +63,7 @@ def algorithmTest(cmdArgs):
         print(row)
         writer.writerow(row)
     file.close()
+
 
 def readFolder(folder: str):
   folder = args['folder']
@@ -184,6 +186,11 @@ def searchTestParser(subparsers):
     '-r', '--repeats',
     default=200,
     help='The number of times every cycle calculation will be repeated'
+  )
+  parser.add_argument(
+    '-s', '--newCount',
+    default=3,
+    help='The number of objects that will be chosen from candidates'
   )
   parser.set_defaults(function=algorithmTest)
 

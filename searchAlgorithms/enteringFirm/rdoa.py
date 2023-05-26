@@ -25,7 +25,7 @@ def rdoa(args: dict[str, Any], locationFunction: Callable):
       nX.clear(); nXRankIndexes.clear()
       for i, x in enumerate(X):
         if uniform(0, 1) < 1/args['newCount']:
-          # select a new location
+          # select a new location, exclude any already selected locations
           allLocations = list(X) + nX
           # only use candidates that are not in the chosen locations
           newCandidates, newRanks = [], []
